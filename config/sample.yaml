@@ -1,0 +1,26 @@
+sync_parameter_server:
+  ros__parameters:
+    sync_parameters:
+      - frequency
+      - sim_time
+    frequency:
+      params:
+        - /robot/diff_drive_controller/publish_rate
+        - /robot/velocity_smoother/smoothing_frequency
+        - /robot/robot_state_publisher/publish_frequency
+      /robot/diff_drive_controller/publish_rate:
+        scale: 1.0
+        offset: 5.0
+      /robot/velocity_smoother/smoothing_frequency:
+        offset: -1.0
+      /robot/robot_state_publisher/publish_frequency:
+        scale: 10.0
+      type: double
+      default: 50.0
+    sim_time:
+      params:
+        - /robot/diff_drive_controller/use_sim_time
+        - /robot/velocity_smoother/use_sim_time
+        - /robot/robot_state_publisher/use_sim_time
+      default: true
+      type: bool
