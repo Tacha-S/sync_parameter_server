@@ -132,11 +132,13 @@ SyncParameterServer::setParameters(const std::vector<rclcpp::Parameter>& paramet
       for (auto& param_info : sync_param_paths.second)
       {
         auto value = param.get_value_message();
-        if (value.type == rcl_interfaces::msg::ParameterType::PARAMETER_DOUBLE)
+        if (value.type == rcl_interfaces::msg::ParameterType::PARAMETER_DOUBLE ||
+            value.type == rcl_interfaces::msg::ParameterType::PARAMETER_INTEGER)
         {
           double scale, offset;
           this->get_parameter(sync_name + "." + param_info->node() + "/" + param_info->param() + ".scale", scale);
           this->get_parameter(sync_name + "." + param_info->node() + "/" + param_info->param() + ".offset", offset);
+          value.integer_value = static_cast<int>(std::round(scale * static_cast<double>(value.integer_value) + offset));
           value.double_value = scale * value.double_value + offset;
         }
         if (param_info->value() != value)
@@ -169,12 +171,21 @@ void SyncParameterServer::updateParameterCallback(const std::string& sync_name, 
         if (param_info->value() == param.get_value_message())
           updated = true;
         param_info->setValue(param.get_value_message());
-        if (param.get_type() == rclcpp::ParameterType::PARAMETER_DOUBLE)
+        if (param.get_type() == rclcpp::ParameterType::PARAMETER_DOUBLE ||
+            param.get_type() == rclcpp::ParameterType::PARAMETER_INTEGER)
         {
           double scale, offset;
           this->get_parameter(sync_name + "." + param_info->node() + "/" + param_info->param() + ".scale", scale);
           this->get_parameter(sync_name + "." + param_info->node() + "/" + param_info->param() + ".offset", offset);
-          base_value.double_value = (param.as_double() - offset) / scale;
+          if (param.get_type() == rclcpp::ParameterType::PARAMETER_INTEGER)
+          {
+            base_value.integer_value =
+                static_cast<int>(std::round((static_cast<double>(param.as_int()) - offset) / scale));
+          }
+          else
+          {
+            base_value.double_value = (param.as_double() - offset) / scale;
+          }
         }
       }
     }
@@ -186,11 +197,14 @@ void SyncParameterServer::updateParameterCallback(const std::string& sync_name, 
         if (node_name != param_info->node())
         {
           auto value = base_value;
-          if (value.type == rcl_interfaces::msg::ParameterType::PARAMETER_DOUBLE)
+          if (value.type == rcl_interfaces::msg::ParameterType::PARAMETER_DOUBLE ||
+              value.type == rcl_interfaces::msg::ParameterType::PARAMETER_INTEGER)
           {
             double scale, offset;
             this->get_parameter(sync_name + "." + param_info->node() + "/" + param_info->param() + ".scale", scale);
             this->get_parameter(sync_name + "." + param_info->node() + "/" + param_info->param() + ".offset", offset);
+            value.integer_value =
+                static_cast<int>(std::round(scale * static_cast<double>(value.integer_value) + offset));
             value.double_value = scale * value.double_value + offset;
           }
           if (param_info->value() != value)
@@ -241,7 +255,8 @@ void SyncParameterServer::updateSyncSetting()
                        }) == sync_parameters_[sync_name].second.end())
       {
         auto client = std::make_shared<rclcpp::AsyncParametersClient>(this, node_name);
-        if (default_value.get_type() == rclcpp::ParameterType::PARAMETER_DOUBLE)
+        if (default_value.get_type() == rclcpp::ParameterType::PARAMETER_DOUBLE ||
+            default_value.get_type() == rclcpp::ParameterType::PARAMETER_INTEGER)
         {
           double scale, offset;
           this->declare_parameter(sync_name + "." + sync_param_path + ".scale", 1.0);
@@ -249,8 +264,16 @@ void SyncParameterServer::updateSyncSetting()
           this->get_parameter(sync_name + "." + sync_param_path + ".scale", scale);
           this->get_parameter(sync_name + "." + sync_param_path + ".offset", offset);
           rclcpp::Parameter p;
-          auto m = rclcpp::Parameter(param_name, rclcpp::ParameterValue(scale * default_value.as_double() + offset));
-          client->set_parameters({ m });
+          if (default_value.get_type() == rclcpp::ParameterType::PARAMETER_INTEGER)
+          {
+            p = rclcpp::Parameter(param_name, rclcpp::ParameterValue(static_cast<int>(
+                                                  std::round(scale * default_value.as_int() + offset))));
+          }
+          else
+          {
+            p = rclcpp::Parameter(param_name, rclcpp::ParameterValue(scale * default_value.as_double() + offset));
+          }
+          client->set_parameters({ p });
         }
         else
         {

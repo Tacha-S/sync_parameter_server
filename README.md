@@ -31,7 +31,7 @@ If the default value is changed using the `set_parameters` service call to this 
   - `double_array`
   - `string_array`
 - `[sync_group_name].default` (any): Default value of parameter to be synchronized.
-- `[sync_group_name].[parameter_name].scale` (`double`, default: `1.0`, optional): Scaling factor of parameter to be synchronized. This parameter is only valid if `[sync_group_name].type` is `double`.
-- `[sync_group_name].[parameter_name].offset` (`double`, default: `0.0`, optional): Offset of parameter to be synchronized. This parameter is only valid if `[sync_group_name].type` is `double`.
+- `[sync_group_name].[parameter_name].scale` (`double`, default: `1.0`, optional): Scaling factor of parameter to be synchronized. This parameter is only valid if `[sync_group_name].type` is `double` or `integer`.
+- `[sync_group_name].[parameter_name].offset` (`double`, default: `0.0`, optional): Offset of parameter to be synchronized. This parameter is only valid if `[sync_group_name].type` is `double` or `integer`.
 
 Please refer to [sample.yaml](./config/sample.yaml) for the sample.
