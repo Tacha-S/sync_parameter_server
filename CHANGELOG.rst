@@ -2,6 +2,13 @@
 Changelog for package sync_parameter_server
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fix buildtool_depend
+* Fix secret name
+* Add release CI
+* Contributors: Tatsuro Sakaguchi
+
 1.0.0 (2024-01-12)
 ------------------
 * Add scale and offset to integer
