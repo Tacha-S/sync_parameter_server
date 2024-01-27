@@ -2,8 +2,8 @@
 Changelog for package sync_parameter_server
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.1 (2024-01-27)
+------------------
 * Fix buildtool_depend
 * Fix secret name
 * Add release CI
